@@ -1,0 +1,73 @@
+# pokemon-arena-microservices/docker-compose.yml
+
+networks:
+  pokemon_net:
+    driver: bridge
+
+services:
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - POKEDEX_SERVICE_URL=http://pokedex-service:5001
+      - TEAM_SERVICE_URL=http://team-service:5002
+      - BATTLE_SERVICE_URL=http://battle-service:5003
+    depends_on:
+      - pokedex-service
+      - team-service
+      - battle-service
+    networks:
+      - pokemon_net
+    restart: unless-stopped
+
+  pokedex-service:
+    build: ./pokedex-service
+    container_name: pokedex-service
+    ports:
+      - "5001:5001"
+    volumes:
+      - pokedex_data:/app/src/data
+    networks:
+      - pokemon_net
+    restart: unless-stopped
+
+  team-service:
+    build: ./team-service
+    container_name: team-service
+    ports:
+      - "5002:5002"
+    volumes:
+      - team_data:/app/src/data
+    networks:
+      - pokemon_net
+    restart: unless-stopped
+
+  battle-service:
+    build: ./battle-service
+    container_name: battle-service
+    ports:
+      - "5003:5003"
+    volumes:
+      - battle_data:/app/src/data
+    networks:
+      - pokemon_net
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - pokemon_net
+    restart: unless-stopped
+
+volumes:
+  pokedex_data:
+  team_data:
+  battle_data:

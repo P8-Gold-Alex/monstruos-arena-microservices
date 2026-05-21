@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokémon Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- ░░ Capa de scanlines (puramente decorativa) ░░ -->
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- ════════════════════════════════════════
+       CABECERA GLOBAL
+  ════════════════════════════════════════ -->
+  <header class="site-header">
+    <div class="header-logo">
+      <span class="pixel-ball" aria-hidden="true"></span>
+      <h1>POKÉMON<span class="accent">ARENA</span></h1>
+    </div>
+    <div class="header-status" id="svcStatus">
+      <span class="dot dot--checking"></span> comprobando servicios…
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════
+       NOTIFICACIÓN TOAST
+  ════════════════════════════════════════ -->
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+  <!-- ════════════════════════════════════════
+       CONTENEDOR PRINCIPAL DE VISTAS
+  ════════════════════════════════════════ -->
+  <main id="app">
+
+    <!-- ── VISTA 1: REGISTRO ─────────────────────────────────────── -->
+    <section id="view-register" class="view active">
+      <div class="card card--wide">
+        <h2 class="card__title">▶ NUEVO ENTRENADOR</h2>
+        <form id="formRegister" autocomplete="off">
+          <label class="field">
+            <span class="field__label">NOMBRE DEL ENTRENADOR</span>
+            <input
+              id="inputPlayerName"
+              class="field__input"
+              type="text"
+              placeholder="Ash, Misty, Gary…"
+              maxlength="32"
+              required
+            />
+          </label>
+          <button class="btn btn--primary btn--full" type="submit">
+            REGISTRAR
+          </button>
+        </form>
+
+        <div id="playerInfo" class="player-info hidden">
+          <p>
+            ENTRENADOR: <strong id="playerNameDisplay"></strong>
+            &nbsp;|&nbsp; ID: <strong id="playerIdDisplay"></strong>
+          </p>
+          <button class="btn btn--ghost btn--sm" id="btnLoadPokedex">
+            ▶ CARGAR POKÉDEX
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── VISTA 2: SELECCIÓN DE EQUIPO ─────────────────────────── -->
+    <section id="view-team" class="view">
+
+      <!-- Panel izquierdo: Pokédex -->
+      <div class="card">
+        <h2 class="card__title">POKÉDEX</h2>
+        <div id="pokedexGrid" class="pokedex-grid">
+          <p class="muted">Cargando especies…</p>
+        </div>
+      </div>
+
+      <!-- Panel derecho: Equipo actual -->
+      <div class="card">
+        <h2 class="card__title">MI EQUIPO <span id="teamCount" class="badge">0/6</span></h2>
+        <ul id="teamList" class="team-list"></ul>
+
+        <div id="addPokemonForm" class="add-form hidden">
+          <h3 class="add-form__title" id="addFormTitle">AÑADIR POKÉMON</h3>
+          <div class="form-grid">
+            <label class="field">
+              <span class="field__label">NIVEL</span>
+              <input id="addLevel" class="field__input" type="number" value="50" min="1" max="100" />
+            </label>
+            <label class="field">
+              <span class="field__label">NATURALEZA</span>
+              <select id="addNature" class="field__input"></select>
+            </label>
+            <label class="field">
+              <span class="field__label">HABILIDAD</span>
+              <input id="addAbility" class="field__input" type="text" placeholder="Blaze…" />
+            </label>
+          </div>
+
+          <!-- Movimientos (4 slots) -->
+          <p class="field__label" style="margin-top:1rem">MOVIMIENTOS (move_id)</p>
+          <div class="moves-grid">
+            <input id="move0" class="field__input" type="number" placeholder="Slot 1" />
+            <input id="move1" class="field__input" type="number" placeholder="Slot 2" />
+            <input id="move2" class="field__input" type="number" placeholder="Slot 3" />
+            <input id="move3" class="field__input" type="number" placeholder="Slot 4" />
+          </div>
+
+          <!-- EVs -->
+          <p class="field__label" style="margin-top:1rem">EVs <span class="muted">(máx 252 / 510 total)</span></p>
+          <div class="stats-grid" id="evInputs"></div>
+
+          <div class="add-form__actions">
+            <button class="btn btn--primary" id="btnConfirmAdd">CONFIRMAR</button>
+            <button class="btn btn--ghost" id="btnCancelAdd">CANCELAR</button>
+          </div>
+        </div>
+
+        <div class="card__footer">
+          <button class="btn btn--accent btn--full" id="btnGoToBattle" disabled>
+            ⚔ INICIAR BATALLA
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── VISTA 3: CONFIGURAR BATALLA ──────────────────────────── -->
+    <section id="view-setup" class="view">
+      <div class="card card--wide">
+        <h2 class="card__title">⚔ CONFIGURAR BATALLA</h2>
+
+        <div class="setup-grid">
+          <div class="setup-player">
+            <p class="setup-label">JUGADOR 1</p>
+            <p id="setupP1Name" class="setup-name">—</p>
+            <p id="setupP1Id" class="setup-id muted"></p>
+          </div>
+          <div class="setup-vs">VS</div>
+          <div class="setup-player">
+            <p class="setup-label">JUGADOR 2</p>
+            <input id="inputP2Id" class="field__input" type="number"
+              placeholder="ID del rival" min="1" />
+          </div>
+        </div>
+
+        <button class="btn btn--primary btn--full" id="btnCreateBattle">
+          ▶ CREAR BATALLA
+        </button>
+        <button class="btn btn--ghost btn--sm" id="btnBackToTeam" style="margin-top:.5rem">
+          ← VOLVER
+        </button>
+      </div>
+    </section>
+
+    <!-- ── VISTA 4: BATALLA ──────────────────────────────────────── -->
+    <section id="view-battle" class="view">
+
+      <!-- Arena superior -->
+      <div class="arena">
+
+        <!-- Pokémon P2 (rival — arriba) -->
+        <div class="arena__combatant arena__combatant--enemy">
+          <div class="combatant__info">
+            <span class="combatant__name" id="p2Name">???</span>
+            <span class="combatant__level" id="p2Level"></span>
+          </div>
+          <div class="hp-bar-wrap">
+            <div class="hp-bar" id="p2HpBar"></div>
+          </div>
+          <div class="hp-text" id="p2HpText">— / —</div>
+          <img class="combatant__sprite combatant__sprite--back"
+               id="p2Sprite" src="" alt="" />
+        </div>
+
+        <!-- Pokémon P1 (jugador — abajo) -->
+        <div class="arena__combatant arena__combatant--player">
+          <img class="combatant__sprite combatant__sprite--front"
+               id="p1Sprite" src="" alt="" />
+          <div class="combatant__info combatant__info--right">
+            <span class="combatant__name" id="p1Name">???</span>
+            <span class="combatant__level" id="p1Level"></span>
+          </div>
+          <div class="hp-bar-wrap">
+            <div class="hp-bar" id="p1HpBar"></div>
+          </div>
+          <div class="hp-text" id="p1HpText">— / —</div>
+        </div>
+      </div>
+
+      <!-- Panel de control inferior -->
+      <div class="battle-ui">
+
+        <!-- Menú de acciones -->
+        <div class="battle-panel" id="panelMoves">
+          <p class="panel-label">¿QUÉ HARÁ <span id="panelPokeName"></span>?</p>
+          <div class="moves-buttons" id="movesButtons"></div>
+          <div class="battle-actions">
+            <button class="btn btn--ghost btn--sm" id="btnRefresh">⟳ REFRESCAR</button>
+            <button class="btn btn--accent" id="btnSendTurn" disabled>ENVIAR TURNO ▶</button>
+          </div>
+        </div>
+
+        <!-- Log de batalla -->
+        <div class="battle-panel battle-panel--log">
+          <p class="panel-label">LOG DE BATALLA</p>
+          <div id="battleLog" class="battle-log"></div>
+        </div>
+
+      </div>
+
+      <!-- Info de batalla -->
+      <div class="battle-meta">
+        <span>BATALLA: <code id="battleIdShort"></code></span>
+        <span>TURNO: <strong id="turnNumber">1</strong></span>
+        <span id="battleStatusBadge" class="badge">ESPERANDO</span>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
