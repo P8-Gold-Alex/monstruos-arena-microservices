@@ -66,7 +66,7 @@
             &nbsp;|&nbsp; ID: <strong id="playerIdDisplay"></strong>
           </p>
           <button class="btn btn--ghost btn--sm" id="btnLoadPokedex">
-            ▶ CARGAR POKÉDEX
+            ▶ ARMAR EQUIPO
           </button>
         </div>
       </div>
@@ -137,25 +137,56 @@
       <div class="card card--wide">
         <h2 class="card__title">⚔ CONFIGURAR BATALLA</h2>
 
-        <div class="setup-grid">
-          <div class="setup-player">
-            <p class="setup-label">JUGADOR 1</p>
-            <p id="setupP1Name" class="setup-name">—</p>
-            <p id="setupP1Id" class="setup-id muted"></p>
+        <!-- Crear batalla nueva -->
+        <div class="setup-block">
+          <p class="field__label" style="margin-bottom:.75rem">CREAR NUEVA BATALLA</p>
+          <div class="setup-grid">
+            <div class="setup-player">
+              <p class="setup-label">TÚ (JUGADOR 1)</p>
+              <p id="setupP1Name" class="setup-name">—</p>
+              <p id="setupP1Id" class="setup-id muted"></p>
+            </div>
+            <div class="setup-vs">VS</div>
+            <div class="setup-player">
+              <p class="setup-label">ID DEL RIVAL</p>
+              <input id="inputP2Id" class="field__input" type="number"
+                placeholder="ID del jugador rival" min="1" />
+            </div>
           </div>
-          <div class="setup-vs">VS</div>
-          <div class="setup-player">
-            <p class="setup-label">JUGADOR 2</p>
-            <input id="inputP2Id" class="field__input" type="number"
-              placeholder="ID del rival" min="1" />
+          <button class="btn btn--primary btn--full" id="btnCreateBattle">
+            ▶ CREAR BATALLA
+          </button>
+
+          <!-- Cuadro que aparece DESPUÉS de crear — muestra UUID para compartir -->
+          <div id="shareBattleId" class="share-box hidden">
+            <div class="share-box__top">
+              <p class="field__label">📋 COMPARTE ESTE ID CON TU RIVAL:</p>
+              <button class="btn btn--ghost btn--sm" id="btnCopyBattleId">COPIAR</button>
+            </div>
+            <code id="battleIdCreated" class="share-code"></code>
+            <button class="btn btn--primary btn--full" id="btnGoToBattleAfterCreate">
+              ▶ IR A LA BATALLA
+            </button>
           </div>
         </div>
 
-        <button class="btn btn--primary btn--full" id="btnCreateBattle">
-          ▶ CREAR BATALLA
-        </button>
+        <div class="setup-divider">— O —</div>
+
+        <!-- Unirse a batalla existente (jugador 2) -->
+        <div class="setup-block">
+          <p class="field__label" style="margin-bottom:.75rem">UNIRME A BATALLA EXISTENTE</p>
+          <label class="field">
+            <span class="field__label">ID DE BATALLA (UUID)</span>
+            <input id="inputJoinBattleId" class="field__input" type="text"
+              placeholder="Pega el UUID que te pasó el rival…" />
+          </label>
+          <button class="btn btn--accent btn--full" id="btnJoinBattle">
+            ▶ UNIRSE A BATALLA
+          </button>
+        </div>
+
         <button class="btn btn--ghost btn--sm" id="btnBackToTeam" style="margin-top:.5rem">
-          ← VOLVER
+          ← VOLVER AL EQUIPO
         </button>
       </div>
     </section>
